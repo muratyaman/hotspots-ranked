@@ -26,6 +26,7 @@ export function randHouseForSale(i: number): IHouseForSale {
     title: `house for sale ${1 + i}`,
     price: randPrice(150000, 50000),
     bedRooms: randInt(3, 2),
+    ts: new Date(),
   };
   console.log(' >> ', h);
   return h;
@@ -37,6 +38,7 @@ export function randHouseToLet(i: number): IHouseToLet {
     title: `house to let ${1 + i}`,
     price: randPrice(1500, 500),
     bedRooms: randInt(3, 2),
+    ts: new Date(),
   };
   console.log(' >> ', h);
   return h;

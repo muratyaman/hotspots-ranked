@@ -1,4 +1,5 @@
 export interface IProcessEnv {
+  HTTP_PROXY?: string;
   DEPOSIT_MAX?: string;
   LOAN_PCTG_MAX?: string;
   ANNUAL_PCTG_RATE?: string;
@@ -6,9 +7,12 @@ export interface IProcessEnv {
   AREAS?: string;
   BEDROOMS_MIN?: string;
   BEDROOMS_MAX?: string;
+  BASE_URL?: string;
+  COOKIE_CONSENT_BUTTON_SELECTOR?: string;
   SALES_URL?: string;
   SALES_RESULTS_SELECTOR?: string;
   SALES_DETAILS_SELECTOR?: string;
+  SALES_DETAILS_LINK_SELECTOR?: string;
   SALES_DETAILS_TITLE_SELECTOR?: string;
   SALES_DETAILS_PRICE_SELECTOR?: string;
   SALES_DETAILS_BEDROOMS_SELECTOR?: string;
@@ -16,6 +20,7 @@ export interface IProcessEnv {
   LETTINGS_URL?: string;
   LETTINGS_RESULTS_SELECTOR?: string;
   LETTINGS_DETAILS_SELECTOR?: string;
+  LETTINGS_DETAILS_LINK_SELECTOR?: string;
   LETTINGS_DETAILS_TITLE_SELECTOR?: string;
   LETTINGS_DETAILS_BEDROOMS_SELECTOR?: string;
   LETTINGS_DETAILS_PRICE_SELECTOR?: string;
@@ -23,6 +28,7 @@ export interface IProcessEnv {
 }
 
 export interface IConfig {
+  httpProxy?: string;
   depositMax: number;
   loanPctgMax: number;
   annualInterestRate: number; // ANNUAL_PCTG_RATE
@@ -31,14 +37,17 @@ export interface IConfig {
   areas: string[];
   bedRoomsMin: number;
   bedRoomsMax: number;
+  baseUrl: string;
+  cookieConsentButtonSelector: string;
   sales: IScrapeSettings;
   lettings: IScrapeSettings;
 }
 
 export interface IScrapeSettings {
-  url: string;
+  urlPath: string;
   resultsSelector: string;
   detailsSelector: string;
+  detailsLinkSelector: string;
   detailsTitleSelector: string;
   detailsPriceSelector: string;
   detailsBedRoomsSelector: string;
@@ -67,6 +76,7 @@ export interface IHouseBase {
   title: string;
   price: string; // "£123,456.78"
   bedRooms: number;
+  ts: Date;
 }
 
 export interface IHouseForSale extends IHouseBase {

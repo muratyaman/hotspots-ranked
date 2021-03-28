@@ -6,50 +6,60 @@ import { findHousesForSale } from './housesForSale';
 import { findHousesToLet } from './housesToLet';
 import { calcMonthlyPaymentAmount, sortByRankInDescOrder } from './math';
 import { calcRankForArea } from './rank';
-import { IConfig, IRank } from './types';
+import { IConfig, IHouseToLet, IHouseForSale, IRank } from './types';
 import { formatMoney, formatPctg } from './i18n';
+import { sleep } from './utils';
 
 main();
 
 async function main() {
+  console.log();
+  console.log('main() start');
+  console.log();
   const config = newConfig(process.env);
   console.log('config', config);
   const areas = await findAreas(config);
   
   const budget = config.depositMax / (1 - config.loanPctgMax);
-  const budgetMin = budget * 0.7; // -30%
-  const budgetMax = budget * 1.1; // +10%
+  const budgetMin = Math.round(budget * 0.7); // -30%
+  const budgetMax = Math.round(budget * 1.1); // +10%
   console.log('Budget range: ', formatMoney(budgetMin), formatMoney(budgetMax));
 
   const annualRateMin = (config.annualInterestRate - 0.01);
   const annualRateMax = (config.annualInterestRate + 0.01);
   console.log('Mortgage rate/yr range: ', formatPctg(annualRateMin * 100.0), formatPctg(annualRateMax * 100.0));
 
-  const monthlyPaymentMin = calcMonthlyPaymentAmount(budgetMin, annualRateMin / 12.0, config.months);
-  const monthlyPaymentMax = calcMonthlyPaymentAmount(budgetMax, annualRateMax / 12.0, config.months);
+  const monthlyPaymentMin = Math.round(calcMonthlyPaymentAmount(budgetMin, annualRateMin / 12.0, config.months));
+  const monthlyPaymentMax = Math.round(calcMonthlyPaymentAmount(budgetMax, annualRateMax / 12.0, config.months));
   console.log('Mortgage payment/mon range: ', formatMoney(monthlyPaymentMin), formatMoney(monthlyPaymentMax));
+  console.log();
 
   // init search operations for each area
   const ranking: IRank[] = [];
 
   for (let area of areas) {
     const housesForSale = await findHousesForSaleInArea(config, area, budgetMin, budgetMax);
-    saveHouses(area, JSON.stringify(housesForSale, null, ' '), 'sales');
-
-    //const housestoLet = await findHousesToLetInArea(config, area, monthlyPaymentMin, monthlyPaymentMax);
-    //const rank = calcRankForArea(area, housesForSale, housestoLet);
-    //console.info('Area:', area, 'Rank:', rank);
-    //ranking.push({ area, rank });
+    await sleep(10000); // wait 10s
+    const housesToLet = await findHousesToLetInArea(config, area, monthlyPaymentMin, monthlyPaymentMax);
+    await sleep(10000); // wait 10s
+    const rank = calcRankForArea(area, housesForSale, housesToLet);
+    console.info('Area:', area, 'Rank:', rank);
+    ranking.push({ area, rank });
   }
 
   // ** sort by rank **
-  // console.log('_______');
-  // console.log('RANKING');
-  // console.log('_______');
-  // ranking.sort(sortByRankInDescOrder);
-  // ranking.forEach((r, i) => {
-  //   console.log(1 + i, 'Area:', r.area, 'Rank:', r.rank);
-  // });
+  console.log();
+  console.log('RANKING acc.to. avg annual yield');
+  console.log();
+  ranking.sort(sortByRankInDescOrder);
+  ranking.forEach((r, i) => {
+    console.log(1 + i, 'Area:', r.area, 'Rank:', r.rank);
+  });
+
+  console.log();
+  console.log('main() end!');
+  console.log();
+  process.exit(0);
 }
 
 async function findHousesForSaleInArea(config: IConfig, area: string, budgetMin: number, budgetMax: number) {
@@ -62,13 +72,13 @@ async function findHousesForSaleInArea(config: IConfig, area: string, budgetMin:
     bedRoomsMax: config.bedRoomsMax,
   });
   console.log('Area:', area, '... found', housesForSale.length, 'houses for sale');
-  // TODO: add to list
-
-  return housesForSale;
+  const allHouses = upsertHousesForSale(area, housesForSale);
+  console.log('Area:', area, '... TOTAL', allHouses.length, 'houses for sale');
+  return allHouses;
 }
 
 async function findHousesToLetInArea(config: IConfig, area: string, monthlyPaymentMin: number, monthlyPaymentMax: number) {
-  const housestoLet = await findHousesToLet(config, {
+  const housesToLet = await findHousesToLet(config, {
     area,
     priceMin: monthlyPaymentMin,
     priceMax: monthlyPaymentMax,
@@ -76,12 +86,39 @@ async function findHousesToLetInArea(config: IConfig, area: string, monthlyPayme
     bedRoomsMax: config.bedRoomsMax,
   });
   console.log('Area:', area, '... found', findHousesToLet.length, 'houses to let');
-  // TODO: add to list
-
-  return housestoLet;
+  const allHouses = upsertHousesToLet(area, housesToLet);
+  console.log('Area:', area, '... TOTAL', allHouses.length, 'houses to let');
+  return allHouses;
 }
 
-function saveHouses(area: string, housesJson: string, section = 'sales') {
-  const file = path.resolve(__dirname, '..', 'logs', section, `${area}.json`);
-  return fse.writeFileSync(file, housesJson);
+function upsertHousesForSale(area: string, houses: IHouseForSale[]): IHouseForSale[] {
+  const file = path.resolve(__dirname, '..', 'logs', 'sales', `${area}.json`);
+  const currentHousesJson = fse.pathExistsSync(file) ? fse.readFileSync(file).toString() : '[]';
+  const currentHouses: IHouseForSale[] = JSON.parse(currentHousesJson);
+  houses.forEach(h => {
+    const found = currentHouses.find(ch => ch.id === h.id);
+    if (found) {
+      // TODO: compare/update ?!
+    } else {
+      currentHouses.push(h);
+    }
+  });
+  fse.writeFileSync(file, JSON.stringify(currentHouses, null, ' '));
+  return currentHouses;
+}
+
+function upsertHousesToLet(area: string, houses: IHouseToLet[]): IHouseToLet[] {
+  const file = path.resolve(__dirname, '..', 'logs', 'lettings', `${area}.json`);
+  const currentHousesJson = fse.pathExistsSync(file) ? fse.readFileSync(file).toString() : '[]';
+  const currentHouses: IHouseToLet[] = JSON.parse(currentHousesJson);
+  houses.forEach(h => {
+    const found = currentHouses.find(ch => ch.id === h.id);
+    if (found) {
+      // TODO: compare/update ?!
+    } else {
+      currentHouses.push(h);
+    }
+  });
+  fse.writeFileSync(file, JSON.stringify(currentHouses, null, ' '));
+  return currentHouses;
 }
