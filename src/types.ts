@@ -1,35 +1,56 @@
 export interface IProcessEnv {
-  MAX_DEPOSIT?: string;
-
-  MAX_LOAN_PCTG?: string;
-
+  DEPOSIT_MAX?: string;
+  LOAN_PCTG_MAX?: string;
   ANNUAL_PCTG_RATE?: string;
-
   YEARS?: string;
-
   AREAS?: string;
-
-  MIN_BEDROOMS?: string;
-
-  MAX_BEDROOMS?: string;
+  BEDROOMS_MIN?: string;
+  BEDROOMS_MAX?: string;
+  SALES_URL?: string;
+  SALES_RESULTS_SELECTOR?: string;
+  SALES_DETAILS_SELECTOR?: string;
+  SALES_DETAILS_TITLE_SELECTOR?: string;
+  SALES_DETAILS_PRICE_SELECTOR?: string;
+  SALES_DETAILS_BEDROOMS_SELECTOR?: string;
+  SALES_NEXT_LINK_SELECTOR?: string;
+  LETTINGS_URL?: string;
+  LETTINGS_RESULTS_SELECTOR?: string;
+  LETTINGS_DETAILS_SELECTOR?: string;
+  LETTINGS_DETAILS_TITLE_SELECTOR?: string;
+  LETTINGS_DETAILS_BEDROOMS_SELECTOR?: string;
+  LETTINGS_DETAILS_PRICE_SELECTOR?: string;
+  LETTINGS_NEXT_LINK_SELECTOR?: string;
 }
 
 export interface IConfig {
-  maxDeposit: number;
-  maxLoanPctg: number;
+  depositMax: number;
+  loanPctgMax: number;
+  annualInterestRate: number; // ANNUAL_PCTG_RATE
   monthlyInterestRate: number; // ANNUAL_PCTG_RATE / 12
   months: number; // TERM x 12
   areas: string[];
-  minBedRooms: number;
-  maxBedRooms: number;
+  bedRoomsMin: number;
+  bedRoomsMax: number;
+  sales: IScrapeSettings;
+  lettings: IScrapeSettings;
+}
+
+export interface IScrapeSettings {
+  url: string;
+  resultsSelector: string;
+  detailsSelector: string;
+  detailsTitleSelector: string;
+  detailsPriceSelector: string;
+  detailsBedRoomsSelector: string;
+  nextLinkSelector: string;
 }
 
 export interface IFindHousesBaseInput {
   area: string;
-  minPrice?: number;
-  maxPrice?: number;
-  minBedRooms?: number;
-  maxBedRooms?: number;
+  priceMin?: number;
+  priceMax?: number;
+  bedRoomsMin?: number;
+  bedRoomsMax?: number;
 }
 
 export interface IFindHousesForSaleInput extends IFindHousesBaseInput {
