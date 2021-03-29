@@ -3,7 +3,7 @@ const i18nDec   = new Intl.NumberFormat('en-GB', { style: 'decimal', maximumSign
 const i18nPctg  = new Intl.NumberFormat('en-GB', { style: 'percent', maximumSignificantDigits: 2 });
 
 export function convertMoney(val: string): number {
-  return Number.parseFloat(val.replace('£', '').replace(/,/g, ''));
+  return Number.parseFloat(val.replace('£', '').replace(/,/g, '').replace(' pcm', ''));
 }
 
 export function formatMoney(val: number): string {
