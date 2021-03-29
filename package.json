@@ -5,6 +5,7 @@
   "main": "build/index.js",
   "scripts": {
     "clean": "rm -rf build",
+    "clean:logs": "rm -rf logs/lettings/*.json && rm -rf logs/sales/*.json",
     "build:ts": "tsc -b ./tsconfig.build.json",
     "build": "npm run clean && npm run build:ts",
     "test": "mocha -r ts-node/register './src/__tests__/**/*.test.ts'",
