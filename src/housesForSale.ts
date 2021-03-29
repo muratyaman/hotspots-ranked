@@ -1,11 +1,11 @@
-import fse from 'fs-extra';
-import path from 'path';
+// import fse from 'fs-extra';
+// import path from 'path';
 import { Page } from 'puppeteer';
 import { browse, IBrowseInput } from './browse';
 import { convertMoney } from './i18n';
 import { randHouseForSale, randInt } from './mocks';
 import { IConfig, IFindHousesForSaleInput, IHouseForSale } from './types';
-import { ts } from './utils';
+// import { ts } from './utils';
 
 const patternResults = /(\d+) results/;
 const patternLink = /\/for-sale\/details\/(\d+)\//;
@@ -37,12 +37,12 @@ export async function findHousesForSale(config: IConfig, input: IFindHousesForSa
 
   let pageId = 1, pageSize = 25;
 
-  const browseInput: IBrowseInput = { url1: baseUrl, url2: url, readyWhenElementExists, sleepMs: 1000 };
+  const browseInput: IBrowseInput = { url, readyWhenElementExists, sleepMs: 1000 };
   if (config.httpProxy) browseInput.httpProxy = config.httpProxy;
 
   try {
     await browse(config, browseInput, async (page: Page) => {
-      console.log('processing sales page...');
+      console.log(' > processing sales page...');
       try {
         // TODO: save HTML copy ?
         // const html = await page.content();
@@ -79,10 +79,10 @@ export async function findHousesForSale(config: IConfig, input: IFindHousesForSa
           }
 
         } else {
-          console.log(' - results element [not found]');
+          console.log(' -- sales results element [not found]');
         }
       } catch (err) {
-        console.error('processing page... ERROR', err.message);
+        console.error('> processing page... ERROR', err.message);
       }
 
       // TODO: decide when to stop: if (totalHouseCount < pageSize * pageId || pageId === 4) stop = true; // get 100 records
@@ -97,7 +97,7 @@ export async function findHousesForSale(config: IConfig, input: IFindHousesForSa
   return houses;
 }
 
-function makeFilePath(area: string, pageId: number) {
-  const t = ts();
-  return path.resolve(__dirname, '..', 'logs', 'sales', `${area}--page-${pageId}--${t}.html`);
-}
+// function makeFilePath(area: string, pageId: number) {
+//   const t = ts();
+//   return path.resolve(__dirname, '..', 'logs', 'sales', `${area}--page-${pageId}--${t}.html`);
+// }

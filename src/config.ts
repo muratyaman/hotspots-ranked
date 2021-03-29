@@ -10,7 +10,7 @@ export function newConfig(penv: IProcessEnv): IConfig {
     annualInterestRate: configFloat(penv.ANNUAL_PCTG_RATE, '5.0') / 100.0,
     monthlyInterestRate: configFloat(penv.ANNUAL_PCTG_RATE, '5.0') / 100.0 / 12.0,
     months: configInt(penv.YEARS) * 12.0,
-    areas: (penv.AREAS ?? '').split(','),
+    areasFile: penv.AREAS_FILE ?? 'areas.txt',
     bedRoomsMin: configInt(penv.BEDROOMS_MIN ?? '3'),
     bedRoomsMax: configInt(penv.BEDROOMS_MAX ?? '3'),
     baseUrl: penv.BASE_URL ?? 'http://localhost',

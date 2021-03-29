@@ -9,6 +9,7 @@ import { calcRankForArea } from './rank';
 import { IConfig, IHouseToLet, IHouseForSale, IRank } from './types';
 import { formatMoney, formatPctg } from './i18n';
 import { sleep } from './utils';
+import { randInt } from './mocks';
 
 main();
 
@@ -38,10 +39,13 @@ async function main() {
   const ranking: IRank[] = [];
 
   for (let area of areas) {
+    await sleep(randInt(10, 5) * 1000); // wait 5-10s
     const housesForSale = await findHousesForSaleInArea(config, area, budgetMin, budgetMax);
-    await sleep(10000); // wait 10s
+    
+    await sleep(randInt(10, 5) * 1000); // wait 5-10s
     const housesToLet = await findHousesToLetInArea(config, area, monthlyPaymentMin, monthlyPaymentMax);
-    await sleep(10000); // wait 10s
+    
+    console.info('Area:', area, 'Rank: ...');
     const rank = calcRankForArea(area, housesForSale, housesToLet);
     console.info('Area:', area, 'Rank:', rank);
     ranking.push({ area, rank });
@@ -85,7 +89,7 @@ async function findHousesToLetInArea(config: IConfig, area: string, monthlyPayme
     bedRoomsMin: config.bedRoomsMin,
     bedRoomsMax: config.bedRoomsMax,
   });
-  console.log('Area:', area, '... found', findHousesToLet.length, 'houses to let');
+  console.log('Area:', area, '... found', housesToLet.length, ' houses to let');
   const allHouses = upsertHousesToLet(area, housesToLet);
   console.log('Area:', area, '... TOTAL', allHouses.length, 'houses to let');
   return allHouses;

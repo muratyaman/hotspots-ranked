@@ -4,7 +4,7 @@ export interface IProcessEnv {
   LOAN_PCTG_MAX?: string;
   ANNUAL_PCTG_RATE?: string;
   YEARS?: string;
-  AREAS?: string;
+  AREAS_FILE?: string;
   BEDROOMS_MIN?: string;
   BEDROOMS_MAX?: string;
   BASE_URL?: string;
@@ -34,7 +34,7 @@ export interface IConfig {
   annualInterestRate: number; // ANNUAL_PCTG_RATE
   monthlyInterestRate: number; // ANNUAL_PCTG_RATE / 12
   months: number; // TERM x 12
-  areas: string[];
+  areasFile: string; // filename
   bedRoomsMin: number;
   bedRoomsMax: number;
   baseUrl: string;

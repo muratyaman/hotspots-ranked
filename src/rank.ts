@@ -44,7 +44,7 @@ export function calcRankForArea(
   }
 
   // TODO: review ranking formula
-  rank = avgAnnualYield;
+  rank = Math.round(avgAnnualYield * 10000.0) / 100.0;
 
   return rank;
 }

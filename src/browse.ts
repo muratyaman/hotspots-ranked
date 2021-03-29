@@ -5,8 +5,7 @@ import { sleep } from './utils';
 const userAgent = 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/78.0.3904.108 Safari/537.36';
 
 export interface IBrowseInput {
-  url1: string;
-  url2: string;
+  url: string;
   readyWhenElementExists: string;
   sleepMs: number;
   httpProxy?: string;
@@ -20,7 +19,7 @@ export function browse(config: IConfig, input: IBrowseInput, processPage: IProce
   return new Promise(async (resolve, reject) => {
     try {
       const { cookieConsentButtonSelector } = config;
-      let { url1, url2, readyWhenElementExists, httpProxy } = input;
+      let { url, readyWhenElementExists, httpProxy } = input;
       const width = 1000, height = 800;
       const options: PuppeteerNodeLaunchOptions = {
         ignoreHTTPSErrors: true,
@@ -36,25 +35,12 @@ export function browse(config: IConfig, input: IBrowseInput, processPage: IProce
       await page.setViewport({ width, height });
 
       page.setDefaultNavigationTimeout(10000); // 10s
-      
-      //console.log('browse() going to url1', url1);
-      //await page.goto(url1, { waitUntil: 'domcontentloaded', timeout: 5000 });
-      //console.log('browse() going to url1', url1, 'done!');
-      //await sleep(5000);
 
-      //console.log('browse() cookie button', cookieConsentButtonSelector);
-      // const btnEl = await page.$(cookieConsentButtonSelector);
-      // if (btnEl) {
-      //   console.log('browse() cookie button', cookieConsentButtonSelector, 'found!');
-      //   console.log('browse() accepting cookies ...');
-      //   await page.click(cookieConsentButtonSelector);
-      //   console.log('browse() accepting cookies ... done!');
-      // }
-
-      console.log('browse() going to url2', url2);
-      await page.goto(url2, { waitUntil: 'domcontentloaded', timeout: 5000 });
-      console.log('browse() going to url2', url2, 'done!');
-      //await sleep(5000);
+      console.log();
+      console.log('browse() going to url', url);
+      await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 5000 });
+      console.log('browse() going to url done!');
+      console.log();
 
       let stop = false, pageId = 1;
       while (!stop && pageId <= 10) {
@@ -63,8 +49,6 @@ export function browse(config: IConfig, input: IBrowseInput, processPage: IProce
         pageId++;
         await sleep(input.sleepMs);
       }
-
-      //await sleep(5000);
 
       browser.close();
       return resolve();
