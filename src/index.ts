@@ -22,13 +22,13 @@ async function main() {
   const areas = await findAreas(config);
   
   const budget = config.depositMax / (1 - config.loanPctgMax);
-  const budgetMin = Math.round(budget * 0.7); // -30%
+  const budgetMin = Math.round(budget * 0.6); // -40%
   const budgetMax = Math.round(budget * 1.1); // +10%
   console.log('Budget range: ', formatMoney(budgetMin), formatMoney(budgetMax));
 
   const annualRateMin = (config.annualInterestRate - 0.01);
   const annualRateMax = (config.annualInterestRate + 0.01);
-  console.log('Mortgage rate/yr range: ', formatPctg(annualRateMin * 100.0), formatPctg(annualRateMax * 100.0));
+  console.log('Mortgage rate/yr range: ', formatPctg(annualRateMin), formatPctg(annualRateMax));
 
   const monthlyPaymentMin = Math.round(calcMonthlyPaymentAmount(budgetMin, annualRateMin / 12.0, config.months));
   const monthlyPaymentMax = Math.round(calcMonthlyPaymentAmount(budgetMax, annualRateMax / 12.0, config.months));
@@ -42,13 +42,17 @@ async function main() {
     await sleep(randInt(10, 5) * 1000); // wait 5-10s
     const housesForSale = await findHousesForSaleInArea(config, area, budgetMin, budgetMax);
     
-    await sleep(randInt(10, 5) * 1000); // wait 5-10s
-    const housesToLet = await findHousesToLetInArea(config, area, monthlyPaymentMin, monthlyPaymentMax);
+    if (housesForSale && housesForSale.length) { // ignore if no houses for sale
+      await sleep(randInt(10, 5) * 1000); // wait 5-10s
+      const housesToLet = await findHousesToLetInArea(config, area, monthlyPaymentMin, monthlyPaymentMax);
     
-    console.info('Area:', area, 'Rank: ...');
-    const rank = calcRankForArea(area, housesForSale, housesToLet);
-    console.info('Area:', area, 'Rank:', rank);
-    ranking.push({ area, rank });
+      if (housesToLet && housesToLet.length) { // ignore if no houses to rent
+        console.info('Area:', area, 'Rank: ...');
+        const rank = calcRankForArea(area, housesForSale, housesToLet);
+        console.info('Area:', area, 'Rank:', rank);
+        ranking.push({ area, rank });
+      }
+    }
   }
 
   // ** sort by rank **
